@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #05070d;
+  color: #e5e9f2;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1c2740; border-radius: 4px; }
+
+.card {
+  @apply bg-base-850 border border-base-700/60 rounded-2xl p-5 shadow-lg shadow-black/20;
+}
+
+.badge {
+  @apply text-xs font-semibold px-2.5 py-1 rounded-full tracking-wide;
+}

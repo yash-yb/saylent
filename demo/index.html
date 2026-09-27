@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Project — Federated AI for National Health Resilience</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#05070d; --panel:#0f1526; --panel2:#131b2e; --border:#1c2740;
+    --text:#e5e9f2; --muted:#8b96ab; --cyan:#22d3ee; --indigo:#6366f1;
+    --amber:#f59e0b; --rose:#f43f5e; --emerald:#34d399;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]){ }
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  a{color:inherit;text-decoration:none;}
+  .layout{display:flex; min-height:100vh;}
+  .sidebar{
+    width:250px; flex-shrink:0; background:#0b0f1a; border-right:1px solid var(--border);
+    padding:22px 14px; position:sticky; top:0; height:100vh; overflow-y:auto;
+  }
+  .brand{display:flex; align-items:center; gap:10px; padding:6px 8px 18px; border-bottom:1px solid var(--border); margin-bottom:14px;}
+  .brand .logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--cyan),var(--indigo));
+    display:flex;align-items:center;justify-content:center;font-weight:800;color:#05070d;font-size:13px;}
+  .brand .name{font-weight:800; font-size:17px; letter-spacing:-0.02em;}
+  .brand .tag{font-size:11px; color:var(--muted); margin-top:6px; line-height:1.4; padding:0 8px;}
+  .navitem{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; font-size:13.5px;
+    font-weight:500; color:var(--muted); cursor:pointer; margin-bottom:3px;}
+  .navitem:hover{background:#131b2e; color:#fff;}
+  .navitem.active{background:rgba(99,102,241,0.15); color:var(--cyan); border:1px solid rgba(99,102,241,0.3);}
+  .navitem svg{width:16px;height:16px;flex-shrink:0;}
+  .foot{font-size:10.5px; color:#4b5568; padding:16px 12px 4px; border-top:1px solid var(--border); margin-top:14px;}
+  main{flex:1; padding:32px 34px; max-width:1400px;}
+  h1{font-size:24px; font-weight:800; margin:0; color:#fff;}
+  .subtitle{color:var(--muted); font-size:13.5px; margin-top:6px;}
+  .grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:22px 0;}
+  .grid3{display:grid; grid-template-columns:2fr 1fr; gap:20px;}
+  @media(max-width:900px){.grid4{grid-template-columns:repeat(2,1fr);} .grid3{grid-template-columns:1fr;} .sidebar{display:none;}}
+  .card{background:var(--panel); border:1px solid rgba(28,39,64,0.7); border-radius:16px; padding:18px 20px; box-shadow:0 10px 25px rgba(0,0,0,0.2);}
+  .stat-label{font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em;}
+  .stat-value{font-size:28px; font-weight:800; margin-top:6px;}
+  .stat-sub{font-size:11.5px; color:#6b7690; margin-top:4px;}
+  .badge{font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px; text-transform:capitalize; white-space:nowrap;}
+  .b-healthy,.b-good,.b-approved{background:rgba(52,211,153,.15); color:var(--emerald);}
+  .b-watch,.b-low,.b-medium{background:rgba(245,158,11,.15); color:var(--amber);}
+  .b-critical,.b-high{background:rgba(244,63,94,.15); color:var(--rose);}
+  .b-pending{background:rgba(99,102,241,.15); color:#a5b4fc;}
+  .b-rejected{background:rgba(139,148,171,.15); color:var(--muted);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th{text-align:left; font-size:11px; text-transform:uppercase; color:var(--muted); font-weight:600; padding:10px 16px; border-bottom:1px solid var(--border);}
+  td{padding:10px 16px; border-bottom:1px solid rgba(28,39,64,0.4); color:#d5dae5;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(19,27,46,0.5);}
+  .row-between{display:flex; align-items:center; justify-content:space-between;}
+  .section-title{font-weight:700; color:#fff; font-size:14px; margin-bottom:14px;}
+  .bar-track{height:6px; width:130px; background:var(--border); border-radius:99px; overflow:hidden;}
+  .bar-fill{height:100%; border-radius:99px;}
+  .dlist>div{display:flex; align-items:center; justify-content:space-between; padding:11px 0; border-bottom:1px solid rgba(28,39,64,0.4);}
+  .dlist>div:last-child{border-bottom:none;}
+  .dname{font-size:13.5px; font-weight:600; color:#fff;}
+  .dmeta{font-size:11.5px; color:var(--muted); margin-top:2px;}
+  .alert-item{padding:12px 14px; border-radius:12px; background:rgba(244,63,94,0.06); border:1px solid rgba(244,63,94,0.2); margin-bottom:10px;}
+  .alert-item .who{font-size:11.5px; font-weight:700; color:var(--rose);}
+  .alert-item .msg{font-size:13px; color:#d5dae5; margin-top:4px;}
+  .btnrow{display:flex; gap:8px;}
+  .chip{padding:7px 14px; border-radius:9px; font-size:12.5px; font-weight:600; border:1px solid var(--border); color:var(--muted); cursor:pointer; background:transparent;}
+  .chip.active{background:rgba(99,102,241,0.18); border-color:rgba(99,102,241,0.4); color:var(--cyan);}
+  .iconbtn{width:32px;height:32px;border-radius:9px;border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .iconbtn:hover{color:#fff; border-color:#3b4766;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .phclist{max-height:520px; overflow-y:auto;}
+  .phcbtn{width:100%; text-align:left; background:transparent; border:none; color:var(--muted); padding:9px 10px; border-radius:9px; cursor:pointer; font-family:inherit;}
+  .phcbtn:hover{background:#131b2e;}
+  .phcbtn.active{background:rgba(99,102,241,0.18); color:var(--cyan);}
+  .phcbtn .n{font-size:13px; font-weight:600; color:inherit;}
+  .phcbtn .m{font-size:11px; opacity:.75;}
+  .stockrow{display:flex; align-items:center; justify-content:space-between; padding:10px 8px; border-bottom:1px solid rgba(28,39,64,0.4); cursor:pointer; border-radius:8px;}
+  .stockrow:hover{background:rgba(19,27,46,0.6);}
+  ::-webkit-scrollbar{width:7px;} ::-webkit-scrollbar-thumb{background:#1c2740;border-radius:4px;}
+  .banner{background:linear-gradient(90deg, rgba(99,102,241,0.12), rgba(34,211,238,0.06)); border:1px solid rgba(99,102,241,0.25); border-radius:14px; padding:14px 18px; font-size:13px; color:#c7d2fe; margin-bottom:20px;}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">P</div>
+      <div class="name">Project</div>
+    </div>
+    <div class="tag" style="margin-bottom:14px;">Federated AI platform for national health resource &amp; supply chain resilience</div>
+    <div class="navitem active" data-view="overview">📊 National Overview</div>
+    <div class="navitem" data-view="districts">🗺️ Districts</div>
+    <div class="navitem" data-view="alerts">🔔 Alerts</div>
+    <div class="navitem" data-view="redistribution">↔️ Redistribution</div>
+    <div class="navitem" data-view="federated">🕸️ Federated Learning</div>
+    <div class="navitem" data-view="phcs">🏥 PHC Explorer</div>
+    <div class="foot">BRICS Track 3 — Smart Health &amp;<br>Supply Chain Resilience<br><br>Live demo · mock data snapshot</div>
+  </aside>
+
+  <main>
+    <!-- OVERVIEW -->
+    <section class="view active" id="view-overview">
+      <h1>National Overview</h1>
+      <p class="subtitle">Live resilience snapshot across 10 districts and 29 PHCs</p>
+      <div class="grid4">
+        <div class="card"><div class="stat-label">Bed Occupancy</div><div class="stat-value">73.1%</div><div class="stat-sub">424 / 580 beds in use</div></div>
+        <div class="card"><div class="stat-label">Active Alerts</div><div class="stat-value" style="color:var(--rose)">96</div><div class="stat-sub">27 critical</div></div>
+        <div class="card"><div class="stat-label">Medicines at Risk</div><div class="stat-value" style="color:var(--amber)">8</div><div class="stat-sub">Projected stockout within lead time</div></div>
+        <div class="card"><div class="stat-label">Pending Redistributions</div><div class="stat-value" style="color:var(--cyan)">119</div><div class="stat-sub">AI-recommended transfers</div></div>
+      </div>
+      <div class="grid3">
+        <div class="card">
+          <div class="row-between" style="margin-bottom:14px;">
+            <div class="section-title" style="margin:0;">District Health Index</div>
+            <a href="#" onclick="nav('districts');return false;" style="font-size:12px;color:var(--cyan);">View all →</a>
+          </div>
+          <div class="dlist" id="district-preview"></div>
+        </div>
+        <div class="card">
+          <div class="section-title">Critical Alerts</div>
+          <div id="critical-alerts"></div>
+          <a href="#" onclick="nav('alerts');return false;" style="font-size:12px;color:var(--cyan);">View all alerts →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- DISTRICTS -->
+    <section class="view" id="view-districts">
+      <h1>Districts</h1>
+      <p class="subtitle">Ranked by stock health — most at-risk first</p>
+      <div class="card" style="padding:0; overflow:hidden; margin-top:20px;">
+        <table>
+          <thead><tr><th>District</th><th>State</th><th>PHCs</th><th>Stock Health</th><th>Bed Occupancy</th><th>Active Alerts</th><th>Status</th></tr></thead>
+          <tbody id="districts-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ALERTS -->
+    <section class="view" id="view-alerts">
+      <div class="row-between">
+        <div>
+          <h1>Alerts</h1>
+          <p class="subtitle" id="alerts-count">96 active alerts across the network</p>
+        </div>
+        <div class="btnrow" id="alert-filters"></div>
+      </div>
+      <div id="alerts-list" style="margin-top:18px;"></div>
+    </section>
+
+    <!-- REDISTRIBUTION -->
+    <section class="view" id="view-redistribution">
+      <h1>Redistribution Recommendations</h1>
+      <p class="subtitle">AI-recommended cross-district transfers, computed from forecast surplus vs. projected shortfall</p>
+      <div id="redis-list" style="margin-top:18px;"></div>
+    </section>
+
+    <!-- FEDERATED -->
+    <section class="view" id="view-federated">
+      <div class="row-between" style="align-items:flex-start;">
+        <div style="max-width:640px;">
+          <h1>Federated Learning</h1>
+          <p class="subtitle">Every district trains a local demand-trend model on its own PHCs' consumption data. Only the model weights — never raw patient or stock records — travel to this aggregation step, which combines them via sample-weighted FedAvg into one national trend per medicine.</p>
+        </div>
+        <button class="chip active" id="run-cycle-btn" onclick="runCycle()">🔄 Run new FedAvg cycle</button>
+      </div>
+      <div class="banner" id="fed-banner" style="display:none;">Running local training on 10 districts → aggregating via FedAvg… done.</div>
+      <div class="card" style="padding:0; overflow:hidden; margin-top:16px;">
+        <table>
+          <thead><tr><th>Medicine</th><th>Round</th><th>Participating Districts</th><th>Global Trend (slope/day)</th><th>Global Baseline</th></tr></thead>
+          <tbody id="federated-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PHC EXPLORER -->
+    <section class="view" id="view-phcs">
+      <h1>PHC Explorer</h1>
+      <p class="subtitle">Drill into any PHC's stock and 14-day demand forecast</p>
+      <div class="grid3" style="grid-template-columns:1fr 2fr; margin-top:18px;">
+        <div class="card">
+          <div class="section-title">Select PHC</div>
+          <div class="phclist" id="phc-list"></div>
+        </div>
+        <div class="card">
+          <div class="section-title" id="stock-title">Medicine Stock</div>
+          <div id="stock-list"></div>
+          <div id="forecast-wrap" style="display:none; margin-top:20px; padding-top:20px; border-top:1px solid var(--border);">
+            <div class="row-between" style="margin-bottom:10px;">
+              <div style="font-weight:700; font-size:13.5px; color:#fff;" id="forecast-title"></div>
+              <div class="badge b-critical" id="forecast-stockout" style="display:none;"></div>
+            </div>
+            <canvas id="forecast-chart" height="90"></canvas>
+            <p class="stat-sub" style="margin-top:10px;">Method: Holt linear-trend + federated-averaged global trend blend.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+// ---------- Mock data mirroring the real Project FastAPI backend ----------
+const districts = [
+  {name:"Belagavi", state:"Karnataka", phcs:4, stock:53.1, beds:73.8, alerts:18, status:"critical"},
+  {name:"Bengaluru Rural", state:"Karnataka", phcs:3, stock:54.2, beds:71.1, alerts:14, status:"critical"},
+  {name:"Gaya", state:"Bihar", phcs:3, stock:61.4, beds:68.9, alerts:11, status:"critical"},
+  {name:"Patna", state:"Bihar", phcs:3, stock:66.7, beds:75.2, alerts:9, status:"watch"},
+  {name:"Nagpur", state:"Maharashtra", phcs:3, stock:70.8, beds:70.4, alerts:8, status:"watch"},
+  {name:"Kanpur", state:"Uttar Pradesh", phcs:2, stock:75.0, beds:77.0, alerts:7, status:"watch"},
+  {name:"Varanasi", state:"Uttar Pradesh", phcs:3, stock:79.2, beds:66.5, alerts:6, status:"watch"},
+  {name:"Nashik", state:"Maharashtra", phcs:2, stock:83.3, beds:69.0, alerts:5, status:"watch"},
+  {name:"Lucknow", state:"Uttar Pradesh", phcs:3, stock:88.9, beds:74.1, alerts:2, status:"healthy"},
+  {name:"Pune", state:"Maharashtra", phcs:3, stock:92.5, beds:72.3, alerts:1, status:"healthy"},
+];
+
+const criticalAlerts = [
+  {who:"Bengaluru Rural PHC-3", where:"Bengaluru Rural", msg:"Anti-Malarial (ACT) projected to run out on 2026-10-02 at current consumption trend (lead time 5d)."},
+  {who:"Belagavi PHC-2", where:"Belagavi", msg:"Insulin Vials projected to run out on 2026-10-03 at current consumption trend (lead time 5d)."},
+  {who:"Gaya PHC-1", where:"Gaya", msg:"Measles-Rubella Vaccine projected to run out on 2026-10-01 at current consumption trend (lead time 3d)."},
+  {who:"Belagavi PHC-4", where:"Belagavi", msg:"IV Fluids (Ringer's Lactate) at/below its reorder level."},
+  {who:"Nagpur PHC-2", where:"Nagpur", msg:"Amoxicillin 250mg projected to run out on 2026-10-04 at current consumption trend (lead time 7d)."},
+];
+
+const allAlerts = [
+  ...criticalAlerts.map(a=>({...a, severity:"critical", type:"Stockout Risk"})),
+  {who:"Bengaluru Rural PHC-3", where:"Bengaluru Rural", severity:"medium", type:"Stockout Risk", msg:"Anti-Malarial (ACT) at Bengaluru Rural PHC-3 is at/below its reorder level."},
+  {who:"Bengaluru Rural PHC-2", where:"Bengaluru Rural", severity:"medium", type:"Staff Attendance", msg:"Bengaluru Rural PHC-2 staff attendance at 67% of roster today."},
+  {who:"Nagpur PHC-1", where:"Nagpur", severity:"medium", type:"Staff Attendance", msg:"Nagpur PHC-1 staff attendance at 67% of roster today."},
+  {who:"Patna PHC-2", where:"Patna", severity:"high", type:"Bed Capacity", msg:"Patna PHC-2 bed occupancy at 93% — near capacity."},
+  {who:"Kanpur PHC-1", where:"Kanpur", severity:"high", type:"Bed Capacity", msg:"Kanpur PHC-1 bed occupancy at 91% — near capacity."},
+  {who:"Varanasi PHC-2", where:"Varanasi", severity:"medium", type:"Stockout Risk", msg:"Iron-Folic Acid Tablets at/below reorder level."},
+];
+
+const redistribution = [
+  {med:"Paracetamol 500mg", from:"Gaya PHC-2", fromD:"Gaya", to:"Belagavi PHC-4", toD:"Belagavi", qty:248.4, status:"pending"},
+  {med:"Paracetamol 500mg", from:"Nagpur PHC-2", fromD:"Nagpur", to:"Nashik PHC-1", toD:"Nashik", qty:169.8, status:"pending"},
+  {med:"Anti-Malarial (ACT)", from:"Nagpur PHC-2", fromD:"Nagpur", to:"Bengaluru Rural PHC-1", toD:"Bengaluru Rural", qty:124.1, status:"pending"},
+  {med:"Insulin Vials", from:"Pune PHC-1", fromD:"Pune", to:"Belagavi PHC-2", toD:"Belagavi", qty:38.6, status:"pending"},
+  {med:"IV Fluids (Ringer's Lactate)", from:"Lucknow PHC-3", fromD:"Lucknow", to:"Gaya PHC-1", toD:"Gaya", qty:71.2, status:"pending"},
+];
+
+const federatedRounds = [
+  {med:"Paracetamol 500mg", round:1, districts:10, slope:0.302, intercept:25.49},
+  {med:"ORS Sachets", round:1, districts:10, slope:0.243, intercept:13.08},
+  {med:"Amoxicillin 250mg", round:1, districts:10, slope:0.251, intercept:12.97},
+  {med:"Iron-Folic Acid Tablets", round:1, districts:10, slope:0.041, intercept:9.62},
+  {med:"Anti-Malarial (ACT)", round:1, districts:10, slope:0.187, intercept:6.14},
+  {med:"Insulin Vials", round:1, districts:10, slope:0.093, intercept:4.87},
+  {med:"Measles-Rubella Vaccine", round:1, districts:10, slope:0.129, intercept:3.55},
+  {med:"IV Fluids (Ringer's Lactate)", round:1, districts:10, slope:0.221, intercept:11.33},
+];
+
+const phcs = [
+  {name:"Pune PHC-1", district:"Pune", state:"Maharashtra"},
+  {name:"Pune PHC-2", district:"Pune", state:"Maharashtra"},
+  {name:"Nagpur PHC-1", district:"Nagpur", state:"Maharashtra"},
+  {name:"Nagpur PHC-2", district:"Nagpur", state:"Maharashtra"},
+  {name:"Nashik PHC-1", district:"Nashik", state:"Maharashtra"},
+  {name:"Belagavi PHC-2", district:"Belagavi", state:"Karnataka"},
+  {name:"Belagavi PHC-4", district:"Belagavi", state:"Karnataka"},
+  {name:"Bengaluru Rural PHC-3", district:"Bengaluru Rural", state:"Karnataka"},
+  {name:"Gaya PHC-1", district:"Gaya", state:"Bihar"},
+  {name:"Patna PHC-2", district:"Patna", state:"Bihar"},
+];
+
+const stockByPhc = {
+  "Pune PHC-1":[
+    {name:"Paracetamol 500mg", qty:96.3, unit:"strips", days:9.3, status:"critical"},
+    {name:"ORS Sachets", qty:210, unit:"sachets", days:22, status:"healthy"},
+    {name:"Insulin Vials", qty:18.5, unit:"vials", days:14, status:"low"},
+  ],
+  "Belagavi PHC-4":[
+    {name:"IV Fluids (Ringer's Lactate)", qty:12.4, unit:"bottles", days:3.1, status:"critical"},
+    {name:"Amoxicillin 250mg", qty:64, unit:"strips", days:17, status:"healthy"},
+  ],
+};
+const defaultStock = [
+  {name:"Paracetamol 500mg", qty:140.5, unit:"strips", days:15.2, status:"healthy"},
+  {name:"ORS Sachets", qty:88.0, unit:"sachets", days:11.4, status:"low"},
+  {name:"Amoxicillin 250mg", qty:52.0, unit:"strips", days:8.9, status:"low"},
+  {name:"Anti-Malarial (ACT)", qty:22.0, unit:"kits", days:6.2, status:"critical"},
+];
+
+// forecast generator: 14 day projection from a base + trend, matching a medicine's global slope
+function genForecast(base, trend){
+  const out=[]; const start=new Date('2026-09-28');
+  for(let i=0;i<14;i++){
+    const d=new Date(start); d.setDate(d.getDate()+i);
+    out.push({date: d.toISOString().slice(5,10), value: Math.max(0, +(base + trend*i + (Math.random()-0.5)*base*0.05).toFixed(2))});
+  }
+  return out;
+}
+
+function badge(status){ return `<span class="badge b-${status}">${status}</span>`; }
+
+function nav(view){
+  document.querySelectorAll('.navitem').forEach(n=>n.classList.toggle('active', n.dataset.view===view));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+view));
+}
+document.querySelectorAll('.navitem').forEach(n=>n.addEventListener('click', ()=>nav(n.dataset.view)));
+
+// ---- Overview ----
+function renderOverview(){
+  const wrap = document.getElementById('district-preview');
+  wrap.innerHTML = districts.slice(0,6).map(d=>{
+    const color = d.stock<60?'var(--rose)':d.stock<85?'var(--amber)':'var(--emerald)';
+    return `<div>
+      <div><div class="dname">${d.name}</div><div class="dmeta">${d.state} · ${d.phcs} PHCs</div></div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="bar-track"><div class="bar-fill" style="width:${d.stock}%;background:${color}"></div></div>
+        ${badge(d.status)}
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('critical-alerts').innerHTML = criticalAlerts.slice(0,5).map(a=>`
+    <div class="alert-item"><div class="who">${a.who} · ${a.where}</div><div class="msg">${a.msg}</div></div>
+  `).join('');
+}
+
+// ---- Districts ----
+function renderDistricts(){
+  document.getElementById('districts-table').innerHTML = districts.map(d=>`
+    <tr><td style="color:#fff;font-weight:600;">${d.name}</td><td>${d.state}</td><td>${d.phcs}</td>
+    <td>${d.stock}%</td><td>${d.beds}%</td><td>${d.alerts}</td><td>${badge(d.status)}</td></tr>
+  `).join('');
+}
+
+// ---- Alerts ----
+let alertFilter = 'all';
+function renderAlertFilters(){
+  const filters=['all','critical','high','medium'];
+  document.getElementById('alert-filters').innerHTML = filters.map(f=>
+    `<button class="chip ${alertFilter===f?'active':''}" onclick="setAlertFilter('${f}')">${f}</button>`
+  ).join('');
+}
+function setAlertFilter(f){ alertFilter=f; renderAlertFilters(); renderAlerts(); }
+function renderAlerts(){
+  const list = alertFilter==='all'? allAlerts : allAlerts.filter(a=>a.severity===alertFilter);
+  document.getElementById('alerts-count').textContent = `${allAlerts.length} active alerts across the network`;
+  document.getElementById('alerts-list').innerHTML = list.map((a,i)=>`
+    <div class="card" style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+      <div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">${badge(a.severity)}<span class="stat-sub" style="margin:0;">${a.type}</span></div>
+        <div style="font-size:13.5px;font-weight:600;color:#fff;">${a.who} · ${a.where}</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;">${a.msg}</div>
+      </div>
+      <button class="chip" onclick="this.closest('.card').style.opacity=0.3">✓ Resolve</button>
+    </div>
+  `).join('');
+}
+
+// ---- Redistribution ----
+function renderRedis(){
+  document.getElementById('redis-list').innerHTML = redistribution.map((r,i)=>`
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;" id="redis-${i}">
+      <div style="flex:1;">
+        <div class="stat-sub" style="margin-bottom:4px;">${r.med}</div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:13.5px;">
+          <div><div style="color:#fff;font-weight:600;">${r.from}</div><div class="stat-sub">${r.fromD}</div></div>
+          <div style="text-align:center;color:var(--cyan);">→<div style="font-size:10.5px;font-weight:700;">${r.qty}</div></div>
+          <div><div style="color:#fff;font-weight:600;">${r.to}</div><div class="stat-sub">${r.toD}</div></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        ${badge(r.status)}
+        <button class="iconbtn" onclick="setRedisStatus(${i},'approved')">✓</button>
+        <button class="iconbtn" onclick="setRedisStatus(${i},'rejected')">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+function setRedisStatus(i, status){ redistribution[i].status=status; renderRedis(); }
+
+// ---- Federated ----
+function renderFederated(){
+  document.getElementById('federated-table').innerHTML = federatedRounds.map(r=>`
+    <tr><td style="color:#fff;font-weight:600;">🕸️ ${r.med}</td><td>#${r.round}</td><td>${r.districts}</td>
+    <td>${r.slope.toFixed(3)}</td><td>${r.intercept.toFixed(2)}</td></tr>
+  `).join('');
+}
+function runCycle(){
+  const banner = document.getElementById('fed-banner');
+  banner.style.display='block';
+  federatedRounds.forEach(r=>{ r.round+=1; r.slope = +(r.slope*(0.9+Math.random()*0.2)).toFixed(3); });
+  setTimeout(()=>{ renderFederated(); banner.textContent='FedAvg cycle complete — global trends updated across all 10 districts.'; }, 900);
+}
+
+// ---- PHC Explorer ----
+let selectedPhcIdx = 0;
+let chartInstance = null;
+function renderPhcList(){
+  document.getElementById('phc-list').innerHTML = phcs.map((p,i)=>`
+    <button class="phcbtn ${i===selectedPhcIdx?'active':''}" onclick="selectPhc(${i})">
+      <div class="n">${p.name}</div><div class="m">${p.district}, ${p.state}</div>
+    </button>`).join('');
+}
+function selectPhc(i){
+  selectedPhcIdx = i;
+  renderPhcList();
+  document.getElementById('forecast-wrap').style.display='none';
+  const p = phcs[i];
+  document.getElementById('stock-title').textContent = `Medicine Stock — ${p.name}`;
+  const stock = stockByPhc[p.name] || defaultStock;
+  document.getElementById('stock-list').innerHTML = stock.map((s,j)=>`
+    <div class="stockrow" onclick="showForecast('${p.name}', ${j})">
+      <div><div style="font-size:13.5px;color:#fff;">${s.name}</div>
+      <div class="stat-sub">${s.qty} ${s.unit} on hand · ${s.days}d left</div></div>
+      ${badge(s.status)}
+    </div>`).join('');
+}
+function showForecast(phcName, idx){
+  const stock = (stockByPhc[phcName] || defaultStock)[idx];
+  const trendMap = {critical:2.4, low:0.6, healthy:-0.2};
+  const data = genForecast(stock.qty/8, trendMap[stock.status] ?? 0.3);
+  document.getElementById('forecast-wrap').style.display='block';
+  document.getElementById('forecast-title').textContent = `${stock.name} — 14-day forecast`;
+  const stockoutEl = document.getElementById('forecast-stockout');
+  if(stock.status==='critical'){
+    stockoutEl.style.display='inline-block';
+    stockoutEl.textContent = 'Stockout: ' + data[Math.min(5, data.length-1)].date;
+  } else { stockoutEl.style.display='none'; }
+
+  const ctx = document.getElementById('forecast-chart').getContext('2d');
+  if(chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type:'line',
+    data:{ labels:data.map(d=>d.date), datasets:[{ label:'Predicted demand', data:data.map(d=>d.value),
+      borderColor:'#22d3ee', backgroundColor:'rgba(34,211,238,0.08)', fill:true, tension:0.35, pointRadius:0, borderWidth:2 }]},
+    options:{ responsive:true, plugins:{legend:{display:false}},
+      scales:{ x:{ ticks:{color:'#64748b', font:{size:10.5}}, grid:{color:'#1c2740'} },
+               y:{ ticks:{color:'#64748b', font:{size:10.5}}, grid:{color:'#1c2740'} } } }
+  });
+}
+
+// init
+renderOverview(); renderDistricts(); renderAlertFilters(); renderAlerts(); renderRedis(); renderFederated(); renderPhcList(); selectPhc(0);
+</script>
+</body>
+</html>
