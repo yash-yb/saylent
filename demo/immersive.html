@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saylent — Federated Health Resilience</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+:root{--bg:#05060f;--tx:#eef1ff;--mu:#8e97b8;--cy:#22d3ee;--in:#7c6cff;--pk:#ff5ea8;--am:#ffb648;--gr:#34e3a0;--rd:#ff4d6d;--gl:rgba(255,255,255,.06);--bd:rgba(255,255,255,.12);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font:14px Inter,system-ui,sans-serif;overflow-x:hidden}
+#bg{position:fixed;inset:0;z-index:0;cursor:grab}
+.aur{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(40% 35% at 15% 20%,rgba(124,108,255,.28),transparent),radial-gradient(35% 30% at 85% 15%,rgba(34,211,238,.2),transparent),radial-gradient(40% 40% at 70% 90%,rgba(255,94,168,.16),transparent);animation:aur 14s ease-in-out infinite alternate}
+@keyframes aur{to{transform:scale(1.15) rotate(3deg)}}
+.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:18px 20px 60px;pointer-events:none}
+.wrap>*{pointer-events:auto}
+nav{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 14px;border-radius:22px;background:var(--gl);border:1px solid var(--bd);backdrop-filter:blur(18px);position:sticky;top:10px;z-index:9;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.logo{font:700 19px 'Space Grotesk';display:flex;gap:10px;align-items:center}
+.logo i{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--cy),var(--in) 60%,var(--pk));display:grid;place-items:center;font-style:normal;color:#05060f;box-shadow:0 8px 24px rgba(124,108,255,.6);animation:fl 4s ease-in-out infinite}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;perspective:600px}
+.lev{font:600 13px Inter;color:var(--tx);border:1px solid var(--bd);padding:10px 16px;border-radius:14px;cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.04));box-shadow:0 6px 0 rgba(20,20,60,.9),0 18px 28px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.35);transform:translateY(0) translateZ(0);transition:.18s;animation:fl 5s ease-in-out infinite}
+.lev:nth-child(2n){animation-delay:-1.2s}.lev:nth-child(3n){animation-delay:-2.4s}
+.lev:hover{transform:translateY(-5px) rotateX(8deg);box-shadow:0 11px 0 rgba(20,20,60,.9),0 30px 40px rgba(124,108,255,.45),inset 0 1px 0 rgba(255,255,255,.5)}
+.lev:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(20,20,60,.9),0 6px 10px rgba(0,0,0,.5)}
+.lev.on{background:linear-gradient(180deg,var(--in),#4a3fe0);border-color:transparent;box-shadow:0 6px 0 #2a2296,0 18px 34px rgba(124,108,255,.6),inset 0 1px 0 rgba(255,255,255,.5)}
+.lev.ok{background:linear-gradient(180deg,var(--gr),#12a874);color:#04150f;box-shadow:0 6px 0 #0a6a49,0 18px 30px rgba(52,227,160,.4)}
+.lev.no{background:linear-gradient(180deg,var(--rd),#c0264a);box-shadow:0 6px 0 #7a1730,0 18px 30px rgba(255,77,109,.4)}
+.lev.big{padding:14px 26px;font-size:15px;background:linear-gradient(180deg,var(--cy),#0e8fb0);color:#031418;box-shadow:0 8px 0 #0a5e75,0 24px 40px rgba(34,211,238,.45)}
+@keyframes fl{50%{translate:0 -3px}}
+h1{font:700 clamp(30px,5vw,56px)/1.05 'Space Grotesk';margin:34px 0 6px;letter-spacing:-.03em;background:linear-gradient(90deg,#fff,var(--cy) 50%,var(--pk));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font:700 22px 'Space Grotesk';margin:0 0 4px}
+.sub{color:var(--mu);max-width:640px;margin:0 0 20px}
+.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card{position:relative;padding:20px;border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.03));border:1px solid var(--bd);backdrop-filter:blur(16px);box-shadow:0 30px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.2);transform-style:preserve-3d;transition:transform .15s ease-out,box-shadow .3s;overflow:hidden}
+.card:after{content:"";position:absolute;inset:0;background:radial-gradient(240px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.18),transparent 60%);opacity:0;transition:.3s;pointer-events:none}
+.card:hover:after{opacity:1}.card:hover{box-shadow:0 40px 80px rgba(124,108,255,.3),inset 0 1px 0 rgba(255,255,255,.3)}
+.card>*{transform:translateZ(22px)}
+.k{font:600 11px Inter;text-transform:uppercase;letter-spacing:.1em;color:var(--mu)}
+.v{font:700 42px 'Space Grotesk';margin:6px 0;letter-spacing:-.03em}
+.s{color:var(--mu);font-size:12px}
+.b{font:600 11px Inter;padding:4px 10px;border-radius:99px;text-transform:capitalize}
+.healthy,.approved{background:rgba(52,227,160,.16);color:var(--gr)}.watch,.medium,.low{background:rgba(255,182,72,.16);color:var(--am)}.critical,.high{background:rgba(255,77,109,.18);color:var(--rd)}.pending{background:rgba(124,108,255,.2);color:#b9b1ff}.rejected{background:rgba(142,151,184,.18);color:var(--mu)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07)}.row:last-child{border:0}
+.ring{--p:50;--c:var(--gr);width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),rgba(255,255,255,.08) 0);display:grid;place-items:center;font:700 14px 'Space Grotesk';position:relative}
+.ring:before{content:"";position:absolute;inset:6px;border-radius:50%;background:#0b0d1e}.ring span{position:relative}
+.stage{animation:in .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes in{from{opacity:0;transform:translateY(24px) rotateX(-8deg)}}
+.gone{transition:.5s;transform:translateX(120%) rotate(8deg);opacity:0}
+.bar{height:8px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cy),var(--in),var(--pk));width:0;transition:width 1.6s}
+table{width:100%;border-collapse:collapse}td,th{padding:11px 8px;text-align:left;border-bottom:1px solid rgba(255,255,255,.07)}th{font:600 11px Inter;color:var(--mu);text-transform:uppercase;letter-spacing:.08em}
+.hint{position:fixed;right:18px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:5;font-size:12px;color:var(--mu);background:var(--gl);border:1px solid var(--bd);padding:8px 14px;border-radius:99px;backdrop-filter:blur(10px);pointer-events:none}
+.arrow{color:var(--cy);font-weight:700;animation:sl 1.4s ease-in-out infinite}@keyframes sl{50%{transform:translateX(6px)}}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+</style></head><body>
+<canvas id="bg"></canvas><div class="aur"></div>
+<div class="wrap">
+<nav><div class="logo"><i>S</i>Saylent</div><div class="tabs" id="tabs"></div></nav>
+<main id="stage" class="stage"></main></div>
+<div class="hint">🌍 drag the globe · move over cards · click everything</div>
+<script>
+const $=s=>document.querySelector(s);
+const D=[["Belagavi","Karnataka",4,53,74,18,"critical",15.85,74.5],["Bengaluru Rural","Karnataka",3,54,71,14,"critical",13.2,77.5],["Gaya","Bihar",3,61,69,11,"critical",24.8,85],["Patna","Bihar",3,67,75,9,"watch",25.6,85.1],["Nagpur","Maharashtra",3,71,70,8,"watch",21.1,79.1],["Kanpur","Uttar Pradesh",2,75,77,7,"watch",26.4,80.3],["Varanasi","Uttar Pradesh",3,79,66,6,"watch",25.3,83],["Nashik","Maharashtra",2,83,69,5,"watch",20,73.8],["Lucknow","Uttar Pradesh",3,89,74,2,"healthy",26.8,80.9],["Pune","Maharashtra",3,92,72,1,"healthy",18.5,73.9]];
+const AL=[["critical","Stockout","Bengaluru Rural PHC-3","Anti-Malarial (ACT) runs out in 5 days"],["critical","Stockout","Belagavi PHC-2","Insulin Vials run out in 6 days"],["critical","Stockout","Gaya PHC-1","Measles-Rubella Vaccine runs out in 3 days"],["high","Beds","Patna PHC-2","Bed occupancy 93% — near capacity"],["high","Beds","Kanpur PHC-1","Bed occupancy 91% — near capacity"],["medium","Staff","Nagpur PHC-1","Staff attendance 67% of roster"],["medium","Stockout","Varanasi PHC-2","Iron-Folic Acid at reorder level"]];
+let TR=[["Paracetamol","Gaya PHC-2","Belagavi PHC-4",248,"pending",2,0],["Paracetamol","Nagpur PHC-2","Nashik PHC-1",170,"pending",4,7],["Anti-Malarial (ACT)","Nagpur PHC-2","Bengaluru Rural PHC-1",124,"pending",4,1],["Insulin Vials","Pune PHC-1","Belagavi PHC-2",39,"pending",9,0],["IV Fluids","Lucknow PHC-3","Gaya PHC-1",71,"pending",8,2]];
+const FR=[["Paracetamol 500mg",.302,25.5],["ORS Sachets",.243,13.1],["Amoxicillin 250mg",.251,13],["Iron-Folic Acid",.041,9.6],["Anti-Malarial (ACT)",.187,6.1],["Insulin Vials",.093,4.9],["Measles-Rubella Vaccine",.129,3.6],["IV Fluids",.221,11.3]];let round=1;
+const PH=["Pune PHC-1","Nagpur PHC-2","Belagavi PHC-4","Gaya PHC-1","Patna PHC-2"];
+const ST=[["Paracetamol 500mg",96,"strips",9,"critical"],["ORS Sachets",210,"sachets",22,"healthy"],["Insulin Vials",18,"vials",14,"low"],["Anti-Malarial (ACT)",22,"kits",6,"critical"]];
+const col={critical:0xff4d6d,watch:0xffb648,healthy:0x34e3a0};
+/* ---------- 3D globe ---------- */
+const cv=$('#bg'),rn=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});rn.setPixelRatio(Math.min(devicePixelRatio,2));
+const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(45,1,.1,50);cam.position.z=5.2;
+const G=new THREE.Group();sc.add(G);const ll=(la,lo,r)=>{la*=Math.PI/180;lo*=Math.PI/180;return new THREE.Vector3(r*Math.cos(la)*Math.sin(lo),r*Math.sin(la),r*Math.cos(la)*Math.cos(lo))};
+const pp=[];for(let i=0;i<2200;i++){const y=1-2*i/2200,r=Math.sqrt(1-y*y),t=i*2.399963;pp.push(1.6*r*Math.cos(t),1.6*y,1.6*r*Math.sin(t))}
+const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.Float32BufferAttribute(pp,3));G.add(new THREE.Points(pg,new THREE.PointsMaterial({size:.014,color:0x6f7dff,transparent:true,opacity:.75})));
+G.add(new THREE.Mesh(new THREE.SphereGeometry(1.57,48,48),new THREE.MeshBasicMaterial({color:0x0a0d2a,transparent:true,opacity:.85})));
+const NM=D.map(d=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.04,16,16),new THREE.MeshBasicMaterial({color:col[d[6]]}));m.position.copy(ll(d[7]*1.0,d[8]*1.0,1.63));G.add(m);const h=new THREE.Mesh(new THREE.RingGeometry(.06,.075,32),new THREE.MeshBasicMaterial({color:col[d[6]],transparent:true,opacity:.6,side:2}));h.position.copy(m.position);h.lookAt(m.position.clone().multiplyScalar(2));G.add(h);return{m,h}});
+const arcs=[];function mkArc(a,b,c){const A=NM[a].m.position,B=NM[b].m.position,M=A.clone().add(B).multiplyScalar(.5).normalize().multiplyScalar(2.3);const cu=new THREE.QuadraticBezierCurve3(A,M,B);const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(cu.getPoints(40)),new THREE.LineBasicMaterial({color:c,transparent:true,opacity:.55}));G.add(l);const p=new THREE.Mesh(new THREE.SphereGeometry(.03,8,8),new THREE.MeshBasicMaterial({color:0xffffff}));G.add(p);arcs.push({cu,p,l,t:Math.random(),v:.004+Math.random()*.004})}
+[[0,9],[2,8],[1,4],[3,5],[6,7],[0,4],[2,3],[9,7],[5,8],[1,0]].forEach(([a,b],i)=>mkArc(a,b,[0x22d3ee,0xff5ea8,0x7c6cff][i%3]));
+G.rotation.x=.35;G.rotation.y=-1.3;let ty=null,drag=false,px=0,boost=0,mx=0,my=0;
+function rs(){rn.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.position.x=innerWidth>900?1.7:0;cam.updateProjectionMatrix()}addEventListener('resize',rs);rs();
+cv.addEventListener('pointerdown',e=>{drag=true;px=e.clientX;ty=null});addEventListener('pointerup',()=>drag=false);
+addEventListener('pointermove',e=>{if(drag){G.rotation.y+=(e.clientX-px)*.006;px=e.clientX}mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5});
+function focus(i){ty=-(D[i][8]*Math.PI/180);NM[i].m.scale.setScalar(2.4);setTimeout(()=>NM[i].m.scale.setScalar(1),1200)}
+function anim(t){requestAnimationFrame(anim);if(!drag){if(ty!==null){G.rotation.y+=(ty-G.rotation.y)*.06}else G.rotation.y+=.0016+boost}boost*=.97;G.rotation.x+=(.35+my*.3-G.rotation.x)*.05;
+NM.forEach((n,i)=>{const s=1+.5*Math.sin(t*.003+i);n.h.scale.setScalar(s);n.h.material.opacity=.7-.4*(s-.5)/1});
+arcs.forEach(a=>{a.t=(a.t+a.v*(1+boost*40))%1;a.p.position.copy(a.cu.getPoint(a.t));a.l.material.opacity=.4+boost*8});rn.render(sc,cam)}anim(0);
+/* ---------- UI ---------- */
+function tilt(root){root.querySelectorAll('.card').forEach(c=>{c.onmousemove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=`perspective(900px) rotateX(${-y*12}deg) rotateY(${x*14}deg) translateZ(10px)`;c.style.setProperty('--mx',(x+.5)*100+'%');c.style.setProperty('--my',(y+.5)*100+'%')};c.onmouseleave=()=>c.style.transform=''})}
+function count(root){root.querySelectorAll('[data-n]').forEach(e=>{const n=+e.dataset.n,sfx=e.dataset.s||'',t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/1100);e.textContent=Math.round(n*(1-Math.pow(1-p,3)))+sfx;if(p<1)requestAnimationFrame(f)})(t0)})}
+function burst(el){const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;for(let i=0;i<22;i++){const p=document.createElement('i');p.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:8px;height:8px;border-radius:50%;background:hsl(${Math.random()*360},90%,65%);z-index:99;pointer-events:none`;document.body.appendChild(p);const a=Math.random()*6.28,d=60+Math.random()*120;p.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d+40}px) scale(0)`,opacity:0}],{duration:800,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>p.remove()}}
+const bd=s=>`<span class="b ${s}">${s}</span>`;
+const V={
+overview:()=>`<h1>National resilience,<br>in real time.</h1><p class="sub">Federated AI across 29 PHCs and 10 districts — forecasting stock-outs before they happen and rerouting supplies automatically.</p>
+<div class="grid g4"><div class="card"><div class="k">Bed occupancy</div><div class="v" data-n="73" data-s="%">0</div><div class="s">424 / 580 beds in use</div></div><div class="card"><div class="k">Active alerts</div><div class="v" style="color:var(--rd)" data-n="${AL.length}">0</div><div class="s">3 critical right now</div></div><div class="card"><div class="k">Medicines at risk</div><div class="v" style="color:var(--am)" data-n="8">0</div><div class="s">stock-out inside lead time</div></div><div class="card"><div class="k">AI transfers pending</div><div class="v" style="color:var(--cy)" data-n="${TR.filter(t=>t[4]=='pending').length}">0</div><div class="s">awaiting your approval</div></div></div>
+<div class="grid g2" style="margin-top:16px"><div class="card"><h2>District health index</h2><p class="s">Tap a row — the globe flies there.</p>${D.slice(0,6).map((d,i)=>`<div class="row" style="cursor:pointer" onclick="focus(${i})"><div><b>${d[0]}</b><div class="s">${d[1]} · ${d[2]} PHCs</div></div><div style="flex:1;max-width:140px" class="bar"><i style="width:${d[3]}%"></i></div>${bd(d[6])}</div>`).join('')}</div>
+<div class="card"><h2>Critical alerts</h2>${AL.slice(0,3).map(a=>`<div class="row"><div><b>${a[2]}</b><div class="s">${a[3]}</div></div>${bd(a[0])}</div>`).join('')}<p style="margin-top:14px"><button class="lev big" onclick="go('alerts')">Open alert center →</button></p></div></div>`,
+districts:()=>`<h1>Districts</h1><p class="sub">Stock health per district. Click a card to fly the globe to it.</p><div class="grid g4">${D.map((d,i)=>`<div class="card" onclick="focus(${i})" style="cursor:pointer"><div style="display:flex;gap:14px;align-items:center"><div class="ring" style="--p:${d[3]};--c:${d[3]<60?'var(--rd)':d[3]<85?'var(--am)':'var(--gr)'}"><span>${d[3]}%</span></div><div><b>${d[0]}</b><div class="s">${d[1]}</div></div></div><div class="row" style="margin-top:10px"><span class="s">Beds ${d[4]}% · ${d[5]} alerts</span>${bd(d[6])}</div></div>`).join('')}</div>`,
+alerts:()=>`<h1>Alert center</h1><p class="sub">Early warnings from the forecasting engine. Resolve to clear them.</p><div class="chips" id="chips">${['all','critical','high','medium'].map((f,i)=>`<button class="lev ${i?'':'on'}" onclick="af('${f}',this)">${f}</button>`).join('')}</div><div id="al" class="grid"></div>`,
+redis:()=>`<h1>AI redistribution</h1><p class="sub">Surplus PHCs → at-risk PHCs. You stay in the loop: nothing moves until you approve.</p><div id="tr" class="grid"></div>`,
+fed:()=>`<h1>Federated learning</h1><p class="sub">Each district trains locally. Only three numbers per medicine ever leave — never raw records.</p><p><button class="lev big" id="run" onclick="runFed()">⚡ Run FedAvg round</button></p><div class="bar" style="margin:16px 0"><i id="pb"></i></div><div class="card"><table><tr><th>Medicine</th><th>Round</th><th>Districts</th><th>Slope/day</th><th>Baseline</th></tr>${FR.map(r=>`<tr><td><b>${r[0]}</b></td><td class="rd">#${round}</td><td>10</td><td>${r[1].toFixed(3)}</td><td>${r[2].toFixed(1)}</td></tr>`).join('')}</table></div>`,
+phc:()=>`<h1>PHC explorer</h1><p class="sub">Pick a facility, click a medicine, see its 14-day demand forecast.</p><div class="chips">${PH.map((p,i)=>`<button class="lev ${i?'':'on'}" onclick="pick(${i},this)">${p}</button>`).join('')}</div><div class="grid g2"><div class="card" id="stk"></div><div class="card"><h2 id="ft">Select a medicine</h2><canvas id="ch" height="200"></canvas></div></div>`
+};
+const TB=[['overview','Overview'],['districts','Districts'],['alerts','Alerts'],['redis','Transfers'],['fed','Federated AI'],['phc','Forecasts']];
+$('#tabs').innerHTML=TB.map(([k,l])=>`<button class="lev" data-k="${k}" onclick="go('${k}')">${l}</button>`).join('');
+function go(k){document.querySelectorAll('#tabs .lev').forEach(b=>b.classList.toggle('on',b.dataset.k==k));const s=$('#stage');s.classList.remove('stage');void s.offsetWidth;s.classList.add('stage');s.innerHTML=V[k]();tilt(s);count(s);if(k=='alerts')af('all');if(k=='redis')rt();if(k=='phc')pick(0);scrollTo({top:0,behavior:'smooth'});boost=.02}
+let ch;function af(f,b){if(b){document.querySelectorAll('#chips .lev').forEach(x=>x.classList.remove('on'));b.classList.add('on')}$('#al').innerHTML=AL.map((a,i)=>[a,i]).filter(([a])=>f=='all'||a[0]==f).map(([a,i])=>`<div class="card" id="a${i}"><div class="row" style="border:0"><div>${bd(a[0])} <span class="s">${a[1]}</span><div style="margin-top:8px"><b>${a[2]}</b></div><div class="s">${a[3]}</div></div><button class="lev ok" onclick="burst(this);const c=$('#a${i}');c.classList.add('gone');setTimeout(()=>c.remove(),500)">✓ Resolve</button></div></div>`).join('');tilt($('#al'))}
+function rt(){$('#tr').innerHTML=TR.map((t,i)=>`<div class="card"><div class="s">${t[0]}</div><div class="row" style="border:0"><div><b>${t[1]}</b></div><div class="arrow">━━ ${t[3]} units ━▶</div><div><b>${t[2]}</b></div>${bd(t[4])}${t[4]=='pending'?`<span style="display:flex;gap:8px"><button class="lev ok" onclick="tr(${i},'approved',this)">Approve</button><button class="lev no" onclick="tr(${i},'rejected',this)">Reject</button></span>`:''}</div></div>`).join('');tilt($('#tr'))}
+function tr(i,s,b){if(s=='approved')burst(b);TR[i][4]=s;NM[0];boost=.03;if(s=='approved'){const a=arcs[TR[i][6]%arcs.length];a.l.material.color.set(0x34e3a0)}setTimeout(rt,300)}
+function runFed(){const b=$('#run');b.textContent='Training districts…';boost=.05;$('#pb').style.width='100%';setTimeout(()=>{round++;FR.forEach(r=>r[1]=+(r[1]*(.92+Math.random()*.16)).toFixed(3));burst(b);go('fed')},1700)}
+function pick(i,b){if(b){document.querySelectorAll('.chips .lev').forEach(x=>x.classList.remove('on'));b.classList.add('on')}$('#stk').innerHTML=`<h2>${PH[i]}</h2><p class="s">Click a medicine</p>`+ST.map((s,j)=>`<div class="row" style="cursor:pointer" onclick="fc(${j},${i})"><div><b>${s[0]}</b><div class="s">${s[1]} ${s[2]} · ${s[3]}d left</div></div>${bd(s[4])}</div>`).join('')}
+function fc(j,i){const s=ST[j],tr=s[4]=='critical'?2.2:s[4]=='low'?.6:-.2,b=s[1]/8,d=[...Array(14)].map((_,k)=>+(b+tr*k+(Math.sin(k+i)*.4)).toFixed(1));$('#ft').textContent=s[0]+' — 14-day forecast';if(ch)ch.destroy();ch=new Chart($('#ch'),{type:'line',data:{labels:d.map((_,k)=>'D'+(k+1)),datasets:[{data:d,borderColor:'#22d3ee',backgroundColor:'rgba(34,211,238,.15)',fill:true,tension:.4,pointRadius:0,borderWidth:3}]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8e97b8'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#8e97b8'},grid:{color:'rgba(255,255,255,.06)'}}}}})}
+go('overview');
+</script></body></html>
